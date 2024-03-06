@@ -15,7 +15,7 @@ class Animate(arcade.Sprite):
     i = 0
     time = 0
 
-    def update_animation(self, delta_time):  # swaps between textures based on delta_time
+    def update_animation(self, delta_time):  # swaps between textures based on delta_time, just a preset from internet
         self.time += delta_time
 
         if self.time >= 0.1:
@@ -31,15 +31,16 @@ class Animate(arcade.Sprite):
 
                 self.set_texture(self.i)
 
+
 # Bird class, player controlled object, sprites from /bird/custombird
 class Bird(Animate):
     def __init__(self):
-        super().__init__("bird/CUstombird-downflap.png", 2.5)
+        super().__init__("bird/CUstombird-downflap.png", 2.5)  # Appending different textures
         self.append_texture(arcade.load_texture("bird/Custombird-midflap.png"))
         self.append_texture(arcade.load_texture("bird/Custombird-upflap.png"))
 
-        self.center_x = 100
-        self.center_y = SCREEN_WIDTH / 2  # start position
+        self.center_x = 100  # start position on x
+        self.center_y = SCREEN_WIDTH / 2  # start position on y
 
         self.change_y = 0  # start without force
 
@@ -48,7 +49,7 @@ class Bird(Animate):
         self.center_y += self.change_y  # code for gravity
         self.change_y -= GRAVITATION
 
-        """Collision with screen borders"""
+        """Collision with screen borders"""  # makes bird stop when touching border
         if self.center_y <= 40:
             self.center_y = 40
         if self.center_y >= SCREEN_HEIGHT:
@@ -59,13 +60,14 @@ class Bird(Animate):
             self.center_x = SCREEN_WIDTH
 
         """Horizontally movement"""
-        self.center_x += self.change_x
+        self.center_x += self.change_x  # This makes the sprite move
 
 
+# Coin class, sprites from /coin
 class Coin(Animate):
     def __init__(self):
         super().__init__("coin/coin-1.png", 2.5)
-        """Frames"""
+        """Frames"""  # appending all off the frames to coin textures
         self.append_texture(arcade.load_texture("coin/coin-2.png"))
         self.append_texture(arcade.load_texture("coin/coin-3.png"))
         self.append_texture(arcade.load_texture("coin/coin-4.png"))
@@ -76,26 +78,27 @@ class Coin(Animate):
         self.append_texture(arcade.load_texture("coin/coin-3.png"))
         self.append_texture(arcade.load_texture("coin/coin-2.png"))
 
-        self.center_x = random.randint(100, 700)  # starts with random pos
-        self.center_y = random.randint(70, 530)
+        self.center_x = random.randint(100, 700)  # starts with random pos on x
+        self.center_y = random.randint(70, 530)  # starts with random pos on x
 
 
+# Spike class, spawns mechanics, sprites from /DodgeBird
 class Spike(arcade.Sprite):
     def __init__(self):
         super().__init__("spike2.png", 1.7)
-        self.type = random.randint(0, 2)
-        if self.type == 0:  # different spawn point for spike
+        self.type = random.randint(0, 2)  # gives random type to the spike
+        if self.type == 0:  # type 0 makes it spawn from above
             self.center_x = random.randint(30, 770)
             self.center_y = SCREEN_HEIGHT
             self.change_y = -SPIKE_SPEED
             self.change_x = 0
             self.angle = 90
-        if self.type == 1:
+        if self.type == 1:  # type 1 makes spawn from left border
             self.center_x = 0
             self.center_y = random.randint(50, 550)
             self.change_y = 0
             self.change_x = SPIKE_SPEED
-        if self.type == 2:
+        if self.type == 2:  # type 2 makes spawn from right border
             self.center_x = SCREEN_WIDTH
             self.center_y = random.randint(50, 550)
             self.change_y = 0
@@ -106,7 +109,7 @@ class Spike(arcade.Sprite):
         self.center_y += self.change_y  # movement code
         self.center_x += self.change_x
 
-        """Collision with screen borders"""
+        """Collision with screen borders"""  # The spike gets deleted, so no lag happens
         if self.center_y < 0:
             self.kill()
         if self.center_y > SCREEN_HEIGHT:
@@ -126,7 +129,7 @@ class Game(arcade.Window):
         self.bg = arcade.load_texture("backorund.png")  # loading different
         self.go = arcade.load_texture("GameOver.png")
 
-        """Sprites"""
+        """Sprites"""  # initilizing the sprites
         self.bird = Bird()
         self.coin = Coin()
 
@@ -138,50 +141,48 @@ class Game(arcade.Window):
         self.fps_limit = 60  # cd for spikes to spawn
         self.score = 0  # start score is 0
 
-        self.pixel_font = arcade.load_font("dogicapixel.otf")
-
-        """"Sound"""
-        self.coin_sound_list = [arcade.load_sound("sound/pickupCoin.wav"),
+        """"Sound"""  # sound uses from /sound
+        self.coin_sound_list = [arcade.load_sound("sound/pickupCoin.wav"),  # makes list with three different sounds
                                 arcade.load_sound("sound/pickupCoin_1.wav"),
                                 arcade.load_sound("sound/pickupCoin_2.wav")]
-        self.jump_sound = arcade.load_sound("sound/jump.wav")
-        self.explosion = arcade.load_sound("sound/explosion.wav")
+        self.jump_sound = arcade.load_sound("sound/jump.wav")  # sound for jump
+        self.explosion = arcade.load_sound("sound/explosion.wav")  # sound for game over
 
     def setup(self):
-        self.run = True  # Starts the game
+        self.run = True  # Starts the game, if this is not True the game do not work
+
         self.fps = 0  # fps counter starts with 0
-        self.fps_limit = 60  # cd for spikes to spawn
-        self.score = 0  # start score is 0
+        self.fps_limit = 60  # cooldown for spikes to spawn (60 fps = 1 second)
+        self.score = 0  # score needs to be zero from start
 
-
+    # when run is not True, sprite do not render
     def on_draw(self):
         if self.run:
             self.clear()
             """Bg"""
-            arcade.draw_texture_rectangle(SCREEN_WIDTH / 2,
+            arcade.draw_texture_rectangle(SCREEN_WIDTH / 2,  # function for loading the background
                                           SCREEN_HEIGHT / 2, SCREEN_WIDTH,
                                           SCREEN_HEIGHT, self.bg)
 
-            """Sprites"""
+            """Sprites"""  # draws all the sprites
             self.bird.draw()
             self.coin.draw()
             self.spikes.draw()
             """Text"""
-            arcade.draw_text(f"{self.score}",
+            arcade.draw_text(f"{self.score}", # function for drawing text
                              20, 550,
                              arcade.color.GOLD, 30)
         else:
-            arcade.draw_texture_rectangle(SCREEN_WIDTH / 2,
+            arcade.draw_texture_rectangle(SCREEN_WIDTH / 2,  # if game is off load game over bg
                                           SCREEN_HEIGHT / 2,
-                                          SCREEN_WIDTH,  # if game is off load game over bg
+                                          SCREEN_WIDTH,
                                           SCREEN_HEIGHT, self.go)
             arcade.draw_text(f"{self.score}! Press E",  # load text with the score in the middle of the screen
                              280, 300,
                              arcade.color.GOLD,
                              60,
                              100,
-                             "left",
-                             font_name=arcade.load_font("dogicapixel.ttf"))
+                             "left")
 
     def on_update(self, delta_time: float):
         if self.run:
@@ -215,7 +216,8 @@ class Game(arcade.Window):
                 arcade.play_sound(self.explosion)
                 self.run = False
 
-    def on_key_press(self, symbol: int, modifiers: int):  # movement for bird
+    #  movement for player that uses w,a,s,d,space
+    def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.SPACE:
             self.bird.change_y = BIRD_SPEED
             arcade.play_sound(self.jump_sound)
@@ -223,6 +225,8 @@ class Game(arcade.Window):
             self.bird.change_x = -5
         if symbol == arcade.key.D:
             self.bird.change_x = 5
+
+        # if the game is of
         if symbol == arcade.key.E:
             if not self.run:
                 window.close()
