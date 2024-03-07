@@ -92,7 +92,7 @@ class Spike(arcade.Sprite):
             self.center_y = SCREEN_HEIGHT
             self.change_y = -SPIKE_SPEED
             self.change_x = 0
-            self.angle = 90
+            self.angle = 270
         if self.type == 1:  # type 1 makes spawn from left border
             self.center_x = 0
             self.center_y = random.randint(50, 550)
