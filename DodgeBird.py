@@ -123,7 +123,9 @@ class Spike(arcade.Sprite):
 class Game(arcade.Window):
     def __init__(self, width, height, title):
         super().__init__(width, height, title)
-        self.setup()
+        self.setup()  # turns on when game starts
+
+    def setup(self):
         self.run = True  # Starts the game
         """Bg:s"""
         self.bg = arcade.load_texture("backorund.png")  # loading different
@@ -148,13 +150,6 @@ class Game(arcade.Window):
         self.jump_sound = arcade.load_sound("sound/jump.wav")  # sound for jump
         self.explosion = arcade.load_sound("sound/explosion.wav")  # sound for game over
 
-    def setup(self):
-        self.run = True  # Starts the game, if this is not True the game do not work
-
-        self.fps = 0  # fps counter starts with 0
-        self.fps_limit = 60  # cooldown for spikes to spawn (60 fps = 1 second)
-        self.score = 0  # score needs to be zero from start
-
     # when run is not True, sprite do not render
     def on_draw(self):
         if self.run:
@@ -169,7 +164,7 @@ class Game(arcade.Window):
             self.coin.draw()
             self.spikes.draw()
             """Text"""
-            arcade.draw_text(f"{self.score}", # function for drawing text
+            arcade.draw_text(f"{self.score}",  # function for drawing text
                              20, 550,
                              arcade.color.GOLD, 30)
         else:
@@ -229,7 +224,8 @@ class Game(arcade.Window):
         # if the game is of
         if symbol == arcade.key.E:
             if not self.run:
-                window.close()
+
+                self.setup()
 
 
 window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
