@@ -35,13 +35,21 @@ class Animate(arcade.Sprite):
 # Bird class, player controlled object, sprites from /bird/custombird
 class Bird(Animate):
     def __init__(self):
-        super().__init__("bird/CUstombird-downflap.png", 2.5)  # Appending different textures
-        self.append_texture(arcade.load_texture("bird/Custombird-midflap.png"))
-        self.append_texture(arcade.load_texture("bird/Custombird-upflap.png"))
+        super().__init__("bird/CUstombird-downflap.png", 2.5)  # giving start picture and scale
+        # making list for frames
+        self.texture_list = [(arcade.load_texture("bird/CUstombird-downflap.png")),
+                             (arcade.load_texture("bird/Custombird-midflap.png")),
+                             (arcade.load_texture("bird/Custombird-upflap.png"))
+                             ]
+        # making another list for flipped frames
+        self.texture_flipped_list = [(arcade.load_texture("bird/CUstombird-downflap.png", flipped_horizontally=True)),
+                                     (arcade.load_texture("bird/Custombird-midflap.png", flipped_horizontally=True)),
+                                     (arcade.load_texture("bird/Custombird-upflap.png", flipped_horizontally=True))
+                                     ]
 
+        """Start position"""
         self.center_x = 100  # start position on x
         self.center_y = SCREEN_WIDTH / 2  # start position on y
-
         self.change_y = 0  # start without force
 
     def update(self):
@@ -50,8 +58,8 @@ class Bird(Animate):
         self.change_y -= GRAVITATION
 
         """Collision with screen borders"""  # makes bird stop when touching border
-        if self.center_y <= 40:
-            self.center_y = 40
+        if self.center_y <= 20:
+            self.center_y = 20
         if self.center_y >= SCREEN_HEIGHT:
             self.center_y = SCREEN_HEIGHT
         if self.center_x <= 0:
@@ -62,8 +70,15 @@ class Bird(Animate):
         """Horizontally movement"""
         self.center_x += self.change_x  # This makes the sprite move
 
+    def turn(self, flip):  # function to change between flipped frames and not
+        if flip:
+            self.textures = self.texture_list
+        else:
+            self.textures = self.texture_flipped_list
 
-# Coin class, sprites from /coin
+    # Coin class, sprites from /coin
+
+
 class Coin(Animate):
     def __init__(self):
         super().__init__("coin/coin-1.png", 2.5)
@@ -216,15 +231,17 @@ class Game(arcade.Window):
         if symbol == arcade.key.SPACE:
             self.bird.change_y = BIRD_SPEED
             arcade.play_sound(self.jump_sound)
+
         if symbol == arcade.key.A:
             self.bird.change_x = -5
+            self.bird.turn(False)
         if symbol == arcade.key.D:
             self.bird.change_x = 5
+            self.bird.turn(True)
 
         # if the game is of
         if symbol == arcade.key.E:
             if not self.run:
-
                 self.setup()
 
 
