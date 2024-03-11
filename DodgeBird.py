@@ -51,9 +51,10 @@ class Bird(Animate):
         self.center_y = SCREEN_WIDTH / 2  # start position on y
         self.change_y = 0  # start without force
         """Start angle"""
-        self.dir = "left"
-        self.angle = 300
-        self.change_angle = -10
+        self.dir = "right dd"
+        self.angle = 0
+        self.change_angle = 0
+        self.ANGLE_AC = 0.6
 
     def update(self):
         """gravity"""
@@ -71,18 +72,57 @@ class Bird(Animate):
         """Horizontally movement"""
         self.center_x += self.change_x  # This makes the sprite move
         """Angle"""
-        self.angle += self.change_angle
+        self.turn_sprite()
+        self.angle_control()
+        print(self.angle)
 
-    def turn_sprite(self):  # function to change between flipped frames, and change the settings for side angle
-        if self.dir == "left":
+    def turn_sprite(self):
+        if self.dir == "left":  # things that happen when bird is going left
             self.textures = self.texture_flipped_list
+
+            self.angle += self.change_angle  # change angle
+            self.change_angle += self.ANGLE_AC  # how fast does angle accelerate
+            if self.angle <= -55:  # adds limit to dipping down
+                self.angle = -55  # stay on -55 angle
+            if self.angle >= 45:  # adds limit to dipping up
+                self.angle = 45  # stay on 45 angle
+
+        elif self.dir == "right":  # things that happen when bird is going right
+            self.textures = self.texture_list  # choose frames that are turned right
+
+            self.angle += self.change_angle  # change angle
+            self.change_angle -= self.ANGLE_AC  # how fast does angle accelerate
+            if self.angle <= -45:  # adds limit to dipping down
+                self.angle = -45  # stay on -45 angle
+            if self.angle >= 55:  # adds limit to dipping up
+                self.angle = 55  # stay on 55 angle
+
+    def jump(self):
+        self.change_y = BIRD_SPEED  # bird goes up
+        arcade.play_sound(window.jump_sound)
         if self.dir == "right":
-            self.textures = self.texture_list
+            self.change_angle += 40
+        if self.dir == "left":
+            self.change_angle += -40
+
+    def angle_control(self):  # controlling angel change to prevent bugs
+        if self.dir == "right":
+            # sets limit for change angel
+            if self.change_angle <= -5:
+                self.change_angle = -5
+            if self.change_angle >= 5:
+                self.change_angle = 5
+
+        if self.dir == "left":
+            # sets limit for change angel
+            if self.change_angle <= -5:
+                self.change_angle = -5
+            if self.change_angle >= 5:
+                self.change_angle = 5
 
 
-
-    def bounce_angle(self):
-        pass
+def bounce_angle(self):
+    pass
 
 
 # Coin class, sprites from /coin
@@ -242,15 +282,21 @@ class Game(arcade.Window):
     #  movement for player that uses w,a,s,d,space
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.SPACE:
-            self.bird.change_y = BIRD_SPEED
-            arcade.play_sound(self.jump_sound)
+            self.bird.jump()
 
         if symbol == arcade.key.A:
             self.bird.change_x = -5
             self.bird.dir = "left"
+
+            if self.bird.angle < 0:
+                self.bird.angle *= -1
+
         if symbol == arcade.key.D:
             self.bird.change_x = 5
             self.bird.dir = "right"
+
+            self.bird.angle *= -1
+
 
         # if the game is of
         if symbol == arcade.key.E:
