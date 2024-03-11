@@ -46,17 +46,19 @@ class Bird(Animate):
                                      (arcade.load_texture("bird/Custombird-midflap.png", flipped_horizontally=True)),
                                      (arcade.load_texture("bird/Custombird-upflap.png", flipped_horizontally=True))
                                      ]
-
         """Start position"""
         self.center_x = 100  # start position on x
         self.center_y = SCREEN_WIDTH / 2  # start position on y
         self.change_y = 0  # start without force
+        """Start angle"""
+        self.dir = "left"
+        self.angle = 300
+        self.change_angle = -10
 
     def update(self):
         """gravity"""
         self.center_y += self.change_y  # code for gravity
         self.change_y -= GRAVITATION
-
         """Collision with screen borders"""  # makes bird stop when touching border
         if self.center_y <= 20:
             self.center_y = 20
@@ -66,17 +68,24 @@ class Bird(Animate):
             self.center_x = 0
         if self.center_x >= SCREEN_WIDTH:
             self.center_x = SCREEN_WIDTH
-
         """Horizontally movement"""
         self.center_x += self.change_x  # This makes the sprite move
+        """Angle"""
+        self.angle += self.change_angle
 
-    def turn(self, flip):  # function to change between flipped frames and not
-        if flip:
-            self.textures = self.texture_list
-        else:
+    def turn_sprite(self):  # function to change between flipped frames, and change the settings for side angle
+        if self.dir == "left":
             self.textures = self.texture_flipped_list
+        if self.dir == "right":
+            self.textures = self.texture_list
 
-    # Coin class, sprites from /coin
+
+
+    def bounce_angle(self):
+        pass
+
+
+# Coin class, sprites from /coin
 
 
 class Coin(Animate):
@@ -92,7 +101,7 @@ class Coin(Animate):
         self.append_texture(arcade.load_texture("coin/coin-4.png"))
         self.append_texture(arcade.load_texture("coin/coin-3.png"))
         self.append_texture(arcade.load_texture("coin/coin-2.png"))
-
+        """Start position"""
         self.center_x = random.randint(100, 700)  # starts with random pos on x
         self.center_y = random.randint(70, 530)  # starts with random pos on x
 
@@ -123,7 +132,6 @@ class Spike(arcade.Sprite):
     def update(self):
         self.center_y += self.change_y  # movement code
         self.center_x += self.change_x
-
         """Collision with screen borders"""  # The spike gets deleted, so no lag happens
         if self.center_y < 0:
             self.kill()
@@ -153,17 +161,20 @@ class Game(arcade.Window):
         """Sprite Lists"""
         self.spikes = arcade.SpriteList()  # list for spikes
 
+        """"Sound"""  # sound uses from /sound
+        self.jump_sound = arcade.load_sound("sound/jump.wav")  # sound for jump
+        self.explosion = arcade.load_sound("sound/explosion.wav")  # sound for game over
+        self.coin_sound_list = [arcade.load_sound("sound/pickupCoin.wav"),  # makes list with three different sounds
+                                arcade.load_sound("sound/pickupCoin_1.wav"),
+                                arcade.load_sound("sound/pickupCoin_2.wav")]
+
+        """Fonts"""
+        self.pixel_custom_font = arcade.load_font("dogicapixel.ttf")
+
         """"Other"""
         self.fps = 0  # fps counter starts with 0
         self.fps_limit = 60  # cd for spikes to spawn
         self.score = 0  # start score is 0
-
-        """"Sound"""  # sound uses from /sound
-        self.coin_sound_list = [arcade.load_sound("sound/pickupCoin.wav"),  # makes list with three different sounds
-                                arcade.load_sound("sound/pickupCoin_1.wav"),
-                                arcade.load_sound("sound/pickupCoin_2.wav")]
-        self.jump_sound = arcade.load_sound("sound/jump.wav")  # sound for jump
-        self.explosion = arcade.load_sound("sound/explosion.wav")  # sound for game over
 
     # when run is not True, sprite do not render
     def on_draw(self):
@@ -181,7 +192,8 @@ class Game(arcade.Window):
             """Text"""
             arcade.draw_text(f"{self.score}",  # function for drawing text
                              20, 550,
-                             arcade.color.GOLD, 30)
+                             arcade.color.GOLD, 30,
+                             font_name=self.pixel_custom_font)
         else:
             arcade.draw_texture_rectangle(SCREEN_WIDTH / 2,  # if game is off load game over bg
                                           SCREEN_HEIGHT / 2,
@@ -192,7 +204,8 @@ class Game(arcade.Window):
                              arcade.color.GOLD,
                              60,
                              100,
-                             "left")
+                             "left",
+                             font_name=self.pixel_custom_font)
 
     def on_update(self, delta_time: float):
         if self.run:
@@ -234,10 +247,10 @@ class Game(arcade.Window):
 
         if symbol == arcade.key.A:
             self.bird.change_x = -5
-            self.bird.turn(False)
+            self.bird.dir = "left"
         if symbol == arcade.key.D:
             self.bird.change_x = 5
-            self.bird.turn(True)
+            self.bird.dir = "right"
 
         # if the game is of
         if symbol == arcade.key.E:
