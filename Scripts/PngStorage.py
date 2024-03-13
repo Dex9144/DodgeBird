@@ -1,6 +1,7 @@
 import arcade
 
 
+# Stores all the frames for coin
 class Coin():
     def __init__(self):
         self.texture_list = [arcade.load_texture("../coin/coin-1.png"),
@@ -15,6 +16,7 @@ class Coin():
                              arcade.load_texture("../coin/coin-2.png")]
 
 
+# Stores all the frames for bird
 class Bird():
     def __init__(self):
         self.texture_list = [(arcade.load_texture("../Bird/CUstombird-downflap.png")),
@@ -29,10 +31,10 @@ class Bird():
         ]
 
 
-
 coin = Coin()
 bird = Bird()
 
+# Creating all the texture lists
 coin_textures = coin.texture_list
 bird_textures = bird.texture_list
 bird_flipped_textures = bird.texture_flipped_list

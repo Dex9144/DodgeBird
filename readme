@@ -1,2 +1,10 @@
-Install: Python 3.11, rec.txt
+INSTALL:
+Python 3.11
+rec.txt
+
+HOW TO PLAY:
+Slide left an right using A,D.
+Jump using W, SPACE, Up.
+Dodge the planes
+Collect as many coins as possible
 
