@@ -1,5 +1,7 @@
 import arcade
 import random
+import base64
+from PngStorage import coin_textures, bird_textures, bird_flipped_textures
 
 SCREEN_WIDTH = 800
 SCREEN_HEIGHT = 600
@@ -30,17 +32,9 @@ class Animate(arcade.Sprite):
 class Bird(Animate):
     def __init__(self):
         super().__init__("../Bird/CUstombird-downflap.png", 2.5)  # giving start picture and scale
-        # making list for frames
-        self.texture_list = [(arcade.load_texture("../Bird/CUstombird-downflap.png")),
-                             (arcade.load_texture("../Bird/Custombird-midflap.png")),
-                             (arcade.load_texture("../Bird/Custombird-upflap.png"))
-                             ]
-        # making another list for flipped frames
-        self.texture_flipped_list = [
-            (arcade.load_texture("../Bird/CUstombird-downflap.png", flipped_horizontally=True)),
-            (arcade.load_texture("../Bird/Custombird-midflap.png", flipped_horizontally=True)),
-            (arcade.load_texture("../Bird/Custombird-upflap.png", flipped_horizontally=True))
-        ]
+        # __List for normal and flipped frames__
+        self.texture_list = bird_textures  # Taking the frames from the PngStorage.py
+        self.texture_flipped_list = bird_flipped_textures  # Taking the frames from the PngStorage.py
 
         self.time = 10  # time delay for the animation
         self.hit_sound_played = False  # player is not hitting the ground when game starts
@@ -147,16 +141,7 @@ class Coin(Animate):
     def __init__(self):
         super().__init__("../coin/coin-1.png", 2.5)
         self.random_pos()
-        """Frames"""  # appending all off the frames to coin textures
-        self.append_texture(arcade.load_texture("../coin/coin-2.png"))
-        self.append_texture(arcade.load_texture("../coin/coin-3.png"))
-        self.append_texture(arcade.load_texture("../coin/coin-4.png"))
-        self.append_texture(arcade.load_texture("../coin/coin-5.png"))
-        self.append_texture(arcade.load_texture("../coin/coin-6.png"))
-        self.append_texture(arcade.load_texture("../coin/coin-5.png"))
-        self.append_texture(arcade.load_texture("../coin/coin-4.png"))
-        self.append_texture(arcade.load_texture("../coin/coin-3.png"))
-        self.append_texture(arcade.load_texture("../coin/coin-2.png"))
+        self.textures = coin_textures  # Taking all the frames from PngStorage
 
     def setup(self):
         self.center_y = SCREEN_HEIGHT / 2
@@ -211,9 +196,11 @@ class Game(arcade.Window):
         self.setup()  # turns on when game starts
         self.load_fonts()
 
+    # __!WORKING ON!__
     def load_fonts(self):
         self.pixel_custom_font = arcade.load_font("../VT323-Regular.ttf")
 
+    # __Function that runs at the start__
     def setup(self):
         self.run = True  # Starts the game
         """Bg:s"""
@@ -246,12 +233,12 @@ class Game(arcade.Window):
         self.fps_limit = 60  # cd for spikes to spawn
         self.score = 0  # start score is 0
 
-    # when run is not True, sprite do not render
+    # __Draws object on screen, happens every frame__
     def on_draw(self):
         if self.run:
             self.clear()
             """Bg"""
-            arcade.draw_texture_rectangle(SCREEN_WIDTH / 2,  # function for loading the background
+            arcade.draw_texture_rectangle(SCREEN_WIDTH / 2,  # function for draw the background
                                           SCREEN_HEIGHT / 2, SCREEN_WIDTH,
                                           SCREEN_HEIGHT, self.bg)
 
@@ -259,24 +246,10 @@ class Game(arcade.Window):
             self.bird.draw()
             self.coin.draw()
             self.spikes.draw()
-            """Text"""
-            arcade.draw_text(f"{self.score}",  # function for drawing text
-                             10, 10,
-                             font_size=20,
-                             font_name=self.pixel_custom_font)
-        else:
-            arcade.draw_texture_rectangle(SCREEN_WIDTH / 2,  # if game is off load game over bg
-                                          SCREEN_HEIGHT / 2,
-                                          SCREEN_WIDTH,
-                                          SCREEN_HEIGHT, self.go)
-            arcade.draw_text(f"{self.score}! Press E",  # load text with the score in the middle of the screen
-                             280, 300,
-                             arcade.color.GOLD,
-                             60,
-                             100,
-                             "left",
-                             font_name=self.pixel_custom_font)
 
+        self.text()
+
+    # __Function that runs every frame__
     def on_update(self, delta_time: float):  # things that happen every frame
         if self.run:
             """Sprites"""
@@ -305,7 +278,10 @@ class Game(arcade.Window):
                 arcade.play_sound(self.explosion)  # play explosion sound from \sound
                 self.run = False
 
-    #  movement for player that uses w,a,s,d,space ds
+        if not self.run:
+            pass
+
+    #  __Function for input__
     def on_key_press(self, symbol: int, modifiers: int):
         if symbol == arcade.key.SPACE or symbol == arcade.key.W or symbol == arcade.key.UP:  # if key SPACE, W, UP
             self.bird.jump()  # makes the bird jump
@@ -324,6 +300,7 @@ class Game(arcade.Window):
             if not self.run:
                 self.setup()  # restart the game
 
+    # __Function for spawning spikes__
     def spawn_spike(self):
         self.fps += 1
         if self.fps >= self.fps_limit:
@@ -333,10 +310,48 @@ class Game(arcade.Window):
             self.spike = Spike()
             self.spikes.append(self.spike)
 
+    # __All the text in game__
+    def text(self):
+        if self.run:
+            # __Score in game__
+            arcade.draw_text(f"{self.score}",  # function for drawing text
+                             10, 10,
+                             font_size=20,
+                             font_name=self.pixel_custom_font)
+
+        else:
+            # __GO bg__
+            arcade.draw_texture_rectangle(SCREEN_WIDTH / 2,  # if game is off load game over bg
+                                          SCREEN_HEIGHT / 2,
+                                          SCREEN_WIDTH,
+                                          SCREEN_HEIGHT, self.go)
+            # __Score in GO__
+            arcade.draw_text(f"{self.score}!",  # load text with the score in the middle of the screen
+                             SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2,
+                             arcade.color.GOLD,
+                             60,
+                             100,
+                             "left",
+                             font_name=self.pixel_custom_font)
+            # __Press E to restart__
+            arcade.draw_text("Press E to restart",  # load text with the score in the middle of the screen
+                             (SCREEN_WIDTH / 2) - 20, (SCREEN_HEIGHT / 2) - 40,
+                             arcade.color.GOLD,
+                             10,
+                             100,
+                             "left",
+                             font_name=self.pixel_custom_font)
+            # __Best score__
+            arcade.draw_text("Press E to restart",  # load text with the score in the middle of the screen
+                             (SCREEN_WIDTH / 2) - 20, (SCREEN_HEIGHT / 2) - 40,
+                             arcade.color.GOLD,
+                             10,
+                             100,
+                             "left",
+                             font_name=self.pixel_custom_font)
+
 
 window = Game(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
 window.setup()
-
-print(window.bird.texture)
 
 arcade.run()
